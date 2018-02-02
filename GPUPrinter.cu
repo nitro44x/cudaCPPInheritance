@@ -3,22 +3,22 @@
 #include <cstdio>
 #include <vector>
 
+using printer_handle = ISimplePrinter**;
+
 HOSTDEVICE void GPUPrinter::print_your_thing() const
 {
     printf("Hello from gpu\n");
 }
 
-template <typename T, typename D>
-__global__ void newKernel(T ** obj)
+__global__ void newKernel(printer_handle obj)
 {
-    *obj = new D;
+    *obj = new GPUPrinter;
 }
-__global__ void printKernel(ISimplePrinter ** printer)
+__global__ void printKernel(printer_handle printer)
 {
     (*printer)->print_your_thing();
 }
-template <typename T>
-__global__ void delKernel(T ** obj)
+__global__ void delKernel(printer_handle obj)
 {
     delete (*obj);
     *obj = nullptr;
@@ -26,10 +26,11 @@ __global__ void delKernel(T ** obj)
 
 int printFromGPU()
 {
+
     cudaError_t err = cudaSuccess;
-    ISimplePrinter ** printer_dev = nullptr;
-    err = cudaMalloc((void**)&printer_dev, sizeof(ISimplePrinter**));
-    newKernel<ISimplePrinter, GPUPrinter><<<1,1>>>(printer_dev);
+    printer_handle printer_dev = nullptr;
+    err = cudaMalloc((void**)&printer_dev, sizeof(printer_handle));
+    newKernel<<<1,1>>>(printer_dev);
     err = cudaDeviceSynchronize();
     printKernel<<<1,1>>>(printer_dev);
     err = cudaDeviceSynchronize();
