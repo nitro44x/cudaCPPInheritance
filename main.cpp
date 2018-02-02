@@ -1,8 +1,9 @@
 
 #include "ISimplePrinter.hpp"
 #include "CPUPrinter.hpp"
-#include <memory>
 #include "GPUPrinter.cuh"
+
+#include <memory>
 
 int main()
 {

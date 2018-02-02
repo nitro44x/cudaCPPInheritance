@@ -1,14 +1,11 @@
 #pragma once
-
-#ifdef __CUDACC__
-#define HOSTDEVICE __host__ __device__
-#else
-#define HOSTDEVICE
-#endif
+#include "CUDAMacros.hpp"
 
 class ISimplePrinter
 {
 public:
-    virtual HOSTDEVICE ~ISimplePrinter() {};
+    // Dtor cannot use = default, nvcc spits out this warning:
+    // ISimplePrinter.hpp(9): warning : __host__ annotation on a defaulted function("~ISimplePrinter") is ignored
+    virtual HOSTDEVICE ~ISimplePrinter() {}  // NOLINT
     virtual HOSTDEVICE void print_your_thing() const = 0;
 };
